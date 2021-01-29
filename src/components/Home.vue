@@ -4,11 +4,11 @@
       <b-button v-if="isEdit" @click="doneEdit()">Done</b-button>
       <b-card style="height: calc(100vh - 100px);">
         <b-card-title>Tavolinat</b-card-title>
-        <div v-for="item in tables"  @dblclick="removeTable(item.key)">
+        <div v-for="item in tables" @dblclick="removeTable(item.key)">
           <VueDragResize :sticks="[]"
                          style="box-shadow: 0 1px 6px 0 rgba(32, 33, 36, .28); background: coral;border-radius: 20px;"
                          :isActive="isEdit" :preventActiveBehavior="true" :w="80"
-                         :h="80" :y="item.top" :x="item.left" v-on:dragging="resize($event,item.key)" >
+                         :h="80" :y="item.top" :x="item.left" v-on:dragging="resize($event,item.key)">
             <div class="text-center">
               <h3>{{ item.key }}</h3>
               <p>{{ item.top }} х {{ item.left }} </p>
@@ -29,16 +29,17 @@
           </div>
           <div class="form-group">
             <b-list-group>
-              <b-list-group-item active-class="active" v-for="profile in profiles" @click="selectProfile(profile.Id)" style="cursor: pointer;">
+              <b-list-group-item active-class="active" v-for="profile in profiles" @click="selectProfile(profile.Id)"
+                                 style="cursor: pointer;">
                   <span>
                     {{ profile.name }}
                   </span>
-                  <div class="float-right">
-                    <b-dropdown right text="Actions">
-                      <b-dropdown-item @click="addTable(profile.Id)">Add table</b-dropdown-item>
-                      <b-dropdown-item @click="editTables()">Edit tables</b-dropdown-item>
-                    </b-dropdown>
-                  </div>
+                <div class="float-right">
+                  <b-dropdown right text="Actions">
+                    <b-dropdown-item @click="addTable(profile.Id)">Add table</b-dropdown-item>
+                    <b-dropdown-item @click="editTables()">Edit tables</b-dropdown-item>
+                  </b-dropdown>
+                </div>
               </b-list-group-item>
             </b-list-group>
           </div>
@@ -77,15 +78,16 @@ export default {
   },
   data() {
     return {
-      isEdit:false,
+      lastDeleted: 0,
+      isEdit: false,
       profileName: '',
       profiles: [
-      {Id: 1, name: "test"},
-      {Id: 2, name: "test2"}
+        {Id: 1, name: "test"},
+        {Id: 2, name: "test2"}
       ],
       tables: [],
-      selectedProfile:1,
-      filteredTables:[]
+      selectedProfile: 1,
+      filteredTables: []
     }
   },
 
@@ -96,52 +98,64 @@ export default {
       table.left = newRect.left;
     },
     addTable(profileId) {
-     let table = {key: (localStorage.getItem('tables') !== null && JSON.parse(localStorage.getItem('tables')).length > 0) ? JSON.parse(localStorage.getItem('tables')).length++ : 0, profileId: profileId, top: 100, left: 100}
-     this.tables = (localStorage.getItem('tables') !== null && localStorage.getItem('tables').length > 0) ? JSON.parse(localStorage.getItem('tables')) : []
-     this.tables.push(table)
-     localStorage.setItem('tables',JSON.stringify(this.tables))
+      let localStorageItem = JSON.parse(localStorage.getItem('tables'))
+      let table = {
+        key: (localStorageItem !== null && localStorageItem.length > 0) ? localStorageItem.length++ : 0,
+        profileId: profileId,
+        top: 100,
+        left: 100
+      }
+      this.tables = (localStorageItem !== null && localStorageItem.length > 0) ? localStorageItem : []
+      this.tables.push(table)
+      localStorage.setItem('tables', JSON.stringify(this.tables))
     },
     editTables() {
       this.isEdit = 1
     },
-    doneEdit() {
-      let self = this;
-      this.isEdit = !this.isEdit
-      let tableFromStorage = JSON.parse(localStorage.getItem('tables'))
-      if(tableFromStorage.length > 0){
-        tableFromStorage.forEach(function(item){
+    tablesJoining() {
+      let self = this
+      let tableFromStorage = JSON.parse(localStorage.getItem('tables')).filter(x => x !== null && this.lastDeleted !== x.key)
+      if (tableFromStorage.length > 0) {
+        tableFromStorage.forEach(function (item) {
           self.tables.push(item)
         })
       }
       let unique = Array.from(new Set(this.tables.map(x => x.key)))
-      .map(key => {
-        let tableEntity = this.tables.find(x => x.key === key);
-        return {
-          key:key,
-          top:tableEntity.top,
-          left:tableEntity.left,
-          profileId:tableEntity.profileId
-        }
-      })
+          .map(key => {
+            let tableEntity = this.tables.find(x => x.key === key);
+            return {
+              key: key,
+              top: tableEntity.top,
+              left: tableEntity.left,
+              profileId: tableEntity.profileId
+            }
+          })
       console.log(unique)
-      localStorage.setItem('tables',JSON.stringify(unique))
+      localStorage.setItem('tables', JSON.stringify(unique))
       this.tables = JSON.parse(localStorage.getItem('tables')).filter(x => x.profileId === 1)
     },
-    removeTable(tableKey){
+
+    doneEdit() {
+      this.isEdit = !this.isEdit
+      this.tablesJoining()
+    },
+    removeTable(tableKey) {
       this.tables = this.tables.filter(x => {
         return x.key !== tableKey
       })
-      localStorage.setItem('tables',JSON.stringify(this.tables))
+      this.lastDeleted = tableKey
+      this.tablesJoining()
     },
     addProfile() {
       if (this.profileName === '')
         return false
       this.profiles.push({Id: Math.floor(Math.random() * 20) + 1, name: this.profileName})
     },
-    selectProfile(profileId){
-     this.selectedProfile = profileId
-     this.tables = (localStorage.getItem('tables') !== null && localStorage.getItem('tables').length > 0)
-                  ? JSON.parse(localStorage.getItem('tables')).filter(x => x.profileId === this.selectedProfile) : []
+    selectProfile(profileId) {
+      let localStorageItem = JSON.parse(localStorage.getItem('tables')).filter(x => x !== null)
+      this.selectedProfile = profileId
+      this.tables = (localStorageItem !== null && localStorageItem.length > 0)
+          ? localStorageItem.filter(x => x.profileId === this.selectedProfile) : []
     },
     hideModal() {
       this.$refs['profileModal'].hide()
