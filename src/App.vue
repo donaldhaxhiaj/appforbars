@@ -1,8 +1,5 @@
 <template>
   <div id="app">
-    <b-navbar type="dark" variant="info">
-      <b-navbar-brand>Bar</b-navbar-brand>
-    </b-navbar>
       <b-container fluid>
           <home></home>
       </b-container>
