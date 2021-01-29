@@ -10,8 +10,8 @@
       </div>
       <b-card style="height: calc(100vh - 100px);">
         <b-card-title>Tavolinat</b-card-title>
-        <div v-for="item in tables" @dblclick="removeTable(item.key)">
-          <VueDragResize :sticks="[]" :id="'tooltip-target-' + item.key"
+        <div id="main" v-for="item in tables" @dblclick="removeTable(item.key)">
+          <VueDragResize :class="isEdit ? 'shake' : ''" :sticks="[]" :id="'tooltip-target-' + item.key"
                          style="box-shadow: 0 1px 6px 0 rgba(32, 33, 36, .28); background: coral;border-radius: 20px;"
                          :isActive="isEdit" :preventActiveBehavior="true" :w="80"
                          :h="80" :y="item.top" :x="item.left" :z="0" v-on:dragging="resize($event,item.key,item.tableName)">
@@ -192,5 +192,41 @@ export default {
 }
 .tooltip>.tooltip-inner {
   background-color: transparent !important;
+}
+.shake {
+  animation-delay: -.75s; animation-duration: .25s;
+}
+#main .vdr:nth-child(2n) {
+  animation-name: keyframes1;
+  animation-iteration-count: infinite;
+  transform-origin: 50% 10%;
+}
+#main .vdr:nth-child(2n-1) {
+  animation-name: keyframes2;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  transform-origin: 30% 5%;
+}
+@keyframes keyframes1 {
+  0% {
+    transform: rotate(-1deg);
+    animation-timing-function: ease-in;
+  }
+
+  50% {
+    transform: rotate(1.5deg);
+    animation-timing-function: ease-out;
+  }
+}
+@keyframes keyframes2 {
+  0% {
+    transform: rotate(1deg);
+    animation-timing-function: ease-in;
+  }
+
+  50% {
+    transform: rotate(-1.5deg);
+    animation-timing-function: ease-out;
+  }
 }
 </style>
