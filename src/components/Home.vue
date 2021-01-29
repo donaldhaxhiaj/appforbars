@@ -5,16 +5,19 @@
       <b-card style="height: calc(100vh - 100px);">
         <b-card-title>Tavolinat</b-card-title>
         <div v-for="item in tables" @dblclick="removeTable(item.key)">
-          <VueDragResize :sticks="[]"
+          <VueDragResize :sticks="[]" :id="'tooltip-target-' + item.key"
                          style="box-shadow: 0 1px 6px 0 rgba(32, 33, 36, .28); background: coral;border-radius: 20px;"
                          :isActive="isEdit" :preventActiveBehavior="true" :w="80"
-                         :h="80" :y="item.top" :x="item.left" v-on:dragging="resize($event,item.key)">
-            <div class="text-center">
-              <h3>{{ item.key }}</h3>
-              <p>{{ item.top }} х {{ item.left }} </p>
-              <p>{{ item.width }} х {{ item.height }}</p>
+                         :h="80" :y="item.top" :x="item.left" :z="0" v-on:dragging="resize($event,item.key,item.tableName)">
+            <div class="text-center" >
+              <h5 v-if="!isEdit">{{ item.tableName }}</h5>
             </div>
           </VueDragResize>
+          <div v-if="isEdit">
+            <b-popover :target="'tooltip-target-' + item.key" triggers="click" placement="top">
+              <b-form-input style="background-color: transparent;border-radius: 25px;" type="text" v-model="item.tableName" placeholder="Emri i tavolines" @blur="tableNameChange(item.tableName)"></b-form-input>
+            </b-popover>
+          </div>
         </div>
 
       </b-card>
@@ -92,10 +95,15 @@ export default {
   },
 
   methods: {
-    resize(newRect, item) {
+    resize(newRect, item,tableName) {
       let table = this.tables.find(x => x.key === item);
       table.top = newRect.top;
       table.left = newRect.left;
+    },
+
+    tableNameChange(tableName){
+      let table = this.tables.find(x => x.key === item);
+      table.tableName = tableName;
     },
     addTable(profileId) {
       let localStorageItem = JSON.parse(localStorage.getItem('tables'))
@@ -110,7 +118,7 @@ export default {
       localStorage.setItem('tables', JSON.stringify(this.tables))
     },
     editTables() {
-      this.isEdit = 1
+      this.isEdit = true
     },
     tablesJoining() {
       let self = this
@@ -125,6 +133,7 @@ export default {
             let tableEntity = this.tables.find(x => x.key === key);
             return {
               key: key,
+              tableName: tableEntity.tableName,
               top: tableEntity.top,
               left: tableEntity.left,
               profileId: tableEntity.profileId
@@ -180,5 +189,8 @@ export default {
 <style scoped>
 .vdr.active:before {
   outline: none !important;
+}
+.tooltip>.tooltip-inner {
+  background-color: transparent !important;
 }
 </style>
