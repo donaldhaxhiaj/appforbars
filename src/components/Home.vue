@@ -8,20 +8,23 @@
           <b-nav-item style="background: #16bf82;" v-else @click="doneEdit()"><p class="text-white">Done edit</p></b-nav-item>
         </b-nav>
       </div>
-      <b-card style="height: calc(100vh - 100px);">
+      <b-card style="height: calc(100vh - 158px);">
         <b-card-title>Tavolinat</b-card-title>
-        <div id="main" v-for="item in tables" @dblclick="removeTable(item.key)">
+        <div id="main" style="padding-left: 149px;padding-top: 24px;" v-for="item in tables">
           <VueDragResize :class="isEdit ? 'shake' : ''" :sticks="[]" :id="'tooltip-target-' + item.key"
-                         style="box-shadow: 0 1px 6px 0 rgba(32, 33, 36, .28); background: coral;border-radius: 20px;"
+                         style="box-shadow: 0 1px 6px 0 rgba(32, 33, 36, .28); background: #506dfb;border-radius: 20px; cursor: pointer"
                          :isActive="isEdit" :preventActiveBehavior="true" :w="80"
                          :h="80" :y="item.top" :x="item.left" :z="0" v-on:dragging="resize($event,item.key,item.tableName)">
+
+              <b-icon icon="x-circle" v-if="isEdit" variant="danger" @click="removeTable(item.key)" title="Fshi tavolinen"></b-icon>
+
             <div class="text-center" >
-              <h5 >{{ item.tableName }}</h5>
+              <h5 class="text-white">{{ item.tableName }}</h5>
             </div>
           </VueDragResize>
           <div v-if="isEdit">
             <b-popover :target="'tooltip-target-' + item.key" triggers="click" placement="top">
-              <b-form-input style="background-color: transparent;border-radius: 25px;" type="text" v-model="item.tableName" placeholder="Emri i tavolines" @blur="tableNameChange(item.tableName)"></b-form-input>
+              <input class="form-control" style="background-color: transparent;border-radius: 25px;" type="text" v-model="item.tableName" placeholder="Emri i tavolines" @blur="tableNameChange(item.key,item.tableName)"/>
             </b-popover>
           </div>
         </div>
@@ -101,14 +104,21 @@ export default {
       table.left = newRect.left;
     },
 
-    tableNameChange(tableName){
-      let table = this.tables.find(x => x.key === item);
+    tableNameChange(key,tableName){
+      console.log('test')
+      let tables = JSON.parse(localStorage.getItem('tables')).filter(x => x.tableName === tableName)
+
+      if(tables.length > 0)
+        alert('Tavolina me emrin '+ tableName +' ekziston!')
+
+      let table = this.tables.find(x => x.key === key);
+
       table.tableName = tableName;
     },
     addTable() {
-      let localStorageItem = JSON.parse(localStorage.getItem('tables'))
+      let localStorageItem = JSON.parse(localStorage.getItem('tables')).filter(x => x !== null)
       let table = {
-        key: (localStorageItem !== null && localStorageItem.length > 0) ? localStorageItem.length++ : 0,
+        key: Math.floor(Math.random() * 100) + 1,
         profileId: this.selectedProfile,
         top: 100,
         left: 100
@@ -139,7 +149,7 @@ export default {
               profileId: tableEntity.profileId
             }
           })
-      console.log(unique)
+
       localStorage.setItem('tables', JSON.stringify(unique))
       this.tables = JSON.parse(localStorage.getItem('tables')).filter(x => x.profileId === 1)
     },
@@ -158,7 +168,8 @@ export default {
     addProfile() {
       if (this.profileName === '')
         return false
-      this.profiles.push({Id: Math.floor(Math.random() * 20) + 1, name: this.profileName})
+      this.profiles.push({Id: Math.floor(Math.random() * 20) + 1, name: this.profileName}),
+      this.selectProfile(this.selectedProfile)
     },
     selectProfile(profileId) {
       let localStorageItem = JSON.parse(localStorage.getItem('tables')).filter(x => x !== null)
@@ -187,6 +198,13 @@ export default {
 </script>
 
 <style scoped>
+
+.b-icon {
+  float: right;
+  cursor: pointer;
+  margin-top: -14px;
+}
+
 .vdr.active:before {
   outline: none !important;
 }
