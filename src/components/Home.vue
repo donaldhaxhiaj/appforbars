@@ -125,6 +125,9 @@ export default {
       table.tableName = tableName;
     },
     addTable() {
+      if(localStorage.getItem('tables') === null)
+        localStorage.setItem('tables', JSON.stringify([]))
+
       let localStorageItem = JSON.parse(localStorage.getItem('tables')).filter(x => x != null)
       let table = {
         key: Math.floor(Math.random() * 100) + 1,
