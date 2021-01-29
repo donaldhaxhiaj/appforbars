@@ -1,7 +1,13 @@
 ﻿<template>
   <b-row style="margin-top: 10px">
     <b-col cols="8">
-      <b-button v-if="isEdit" @click="doneEdit()">Done</b-button>
+      <div>
+        <b-nav tabs fill justified>
+          <b-nav-item style="background: #0096c7;" @click="addTable()"><p class="text-white">Add</p></b-nav-item>
+          <b-nav-item style="background: #ef476f;" v-if="!isEdit" @click="editTables()"><p class="text-white">Edit</p></b-nav-item>
+          <b-nav-item style="background: #16bf82;" v-else @click="doneEdit()"><p class="text-white">Done edit</p></b-nav-item>
+        </b-nav>
+      </div>
       <b-card style="height: calc(100vh - 100px);">
         <b-card-title>Tavolinat</b-card-title>
         <div v-for="item in tables" @dblclick="removeTable(item.key)">
@@ -10,7 +16,7 @@
                          :isActive="isEdit" :preventActiveBehavior="true" :w="80"
                          :h="80" :y="item.top" :x="item.left" :z="0" v-on:dragging="resize($event,item.key,item.tableName)">
             <div class="text-center" >
-              <h5 v-if="!isEdit">{{ item.tableName }}</h5>
+              <h5 >{{ item.tableName }}</h5>
             </div>
           </VueDragResize>
           <div v-if="isEdit">
@@ -37,12 +43,6 @@
                   <span>
                     {{ profile.name }}
                   </span>
-                <div class="float-right">
-                  <b-dropdown right text="Actions">
-                    <b-dropdown-item @click="addTable(profile.Id)">Add table</b-dropdown-item>
-                    <b-dropdown-item @click="editTables()">Edit tables</b-dropdown-item>
-                  </b-dropdown>
-                </div>
               </b-list-group-item>
             </b-list-group>
           </div>
@@ -95,7 +95,7 @@ export default {
   },
 
   methods: {
-    resize(newRect, item,tableName) {
+    resize(newRect, item) {
       let table = this.tables.find(x => x.key === item);
       table.top = newRect.top;
       table.left = newRect.left;
@@ -105,11 +105,11 @@ export default {
       let table = this.tables.find(x => x.key === item);
       table.tableName = tableName;
     },
-    addTable(profileId) {
+    addTable() {
       let localStorageItem = JSON.parse(localStorage.getItem('tables'))
       let table = {
         key: (localStorageItem !== null && localStorageItem.length > 0) ? localStorageItem.length++ : 0,
-        profileId: profileId,
+        profileId: this.selectedProfile,
         top: 100,
         left: 100
       }
