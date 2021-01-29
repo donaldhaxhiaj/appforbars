@@ -103,7 +103,7 @@ export default {
         {Id: 2, name: "test2"}
       ],
       tables: [],
-      selectedProfile: 1,
+      selectedProfile: 0,
       filteredTables: []
     }
   },
@@ -125,7 +125,7 @@ export default {
       table.tableName = tableName;
     },
     addTable() {
-      let localStorageItem = JSON.parse(localStorage.getItem('tables')).filter(x => x !== null)
+      let localStorageItem = JSON.parse(localStorage.getItem('tables')).filter(x => x != null)
       let table = {
         key: Math.floor(Math.random() * 100) + 1,
         profileId: this.selectedProfile,
@@ -161,7 +161,7 @@ export default {
           })
 
       localStorage.setItem('tables', JSON.stringify(unique))
-      this.tables = JSON.parse(localStorage.getItem('tables')).filter(x => x.profileId === 1)
+      this.tables = JSON.parse(localStorage.getItem('tables')).filter(x => x.profileId === this.selectedProfile)
     },
 
     doneEdit() {
