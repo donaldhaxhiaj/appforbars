@@ -1,7 +1,7 @@
 ﻿<template>
   <b-row style="margin-top: 10px">
-    <b-card style="height: calc(100vh - 10px); width: 190vh">
-      <b-row>
+    <b-card style="min-height: calc(100vh - 10px); min-width: 100%">
+      <b-row style="min-height: 100%">
         <b-col cols="10">
           <div
             id="main"
@@ -15,10 +15,10 @@
               :id="'tooltip-target-' + item.key"
               class="tableStyles"
               :isActive="isEdit"
+              :w="90"
               :preventActiveBehavior="true"
-              :w="80"
               :parentLimitation="true"
-              :h="80"
+              :h="90"
               :y="item.top"
               :x="item.left"
               :z="0"
@@ -34,87 +34,105 @@
                 title="Fshi tavolinen"
               ></b-icon>
 
-              <div class="text-center" style="margin-top: 21px">
-                <h5 class="text-white">{{ item.tableName }}</h5>
+              <div class="text-center">
+                <h1 class="text-white" style="margin-top: 1rem;">{{ item.number }}</h1>
               </div>
             </VueDragResize>
-            <!-- <div v-if="isEdit">
-              <b-popover
-                :target="'tooltip-target-' + item.key"
-                triggers="click"
-                placement="top"
-              >
-                <input
-                  class="form-control inputTableName"
-                  type="text"
-                  v-model="item.tableName"
-                  placeholder="Emri i tavolines"
-                />
-              </b-popover>
-            </div> -->
           </div>
         </b-col>
         <b-col cols="2">
-          <div class="form-group">
-            <b-button
-              block
-              pill
-              variant="primary"
-              @click="editTables()"
-              v-if="!isEdit"
-              >Modifiko Planimetrin</b-button
-            >
-            <b-button block pill v-if="isEdit" variant="success" @click="doneEdit()"
-              >Perfundo modifikimet</b-button
-            >
-            <b-button block pill v-if="isEdit" @click="addTable()"
-              >Shto Tavoline</b-button
-            >
-            <b-button pill block @click="showModal">Shto Planimetri</b-button>
-          </div>
-          <b-card
-            v-for="(profile, index) in profiles"
-            :key="index"
-            class="mb-2 text-center"
-            @click="selectProfile(profile.id)"
-            style="cursor: pointer"
-          >
-            <b-card-text>
-              {{ profile.name }}
-            </b-card-text>
-          </b-card>
+          <b-row style="min-height: 100%">
+            <b-col cols="12" class="align-self-center">
+              <b-card
+                v-for="(profile, index) in profiles"
+                :key="index"
+                class="mb-3 text-center"
+                :class="getBorderClass(profile.id)"
+                @click="selectProfile(profile.id)"
+                style="cursor: pointer"
+              >
+                <h4>{{ profile.name }}</h4>
+              </b-card>
+            </b-col>
+            <b-col cols="12" class="align-self-end">
+              <div class="form-group">
+                <b-button v-show="!isEdit" pill block id="add-plane-button"
+                  >Shto Planimetri</b-button
+                >
+
+                <b-popover
+                  target="add-plane-button"
+                  triggers="click"
+                  ref="plane-tooltip"
+                  placement="left"
+                >
+                  <div class="d-flex">
+                    <input
+                      class="form-control inputTableName mr-3"
+                      type="text"
+                      v-model="profileName"
+                      placeholder="Emri i planit"
+                    />
+                    <b-button
+                      pill
+                      size="sm"
+                      variant="primary"
+                      @click="addPlane()"
+                      >Krijo</b-button
+                    >
+                  </div>
+                </b-popover>
+                <b-button
+                  block
+                  pill
+                  variant="primary"
+                   @click="editTables()"
+                  v-show="!isEdit"
+                  >Modifiko Planimetrin</b-button
+                >
+                <b-button 
+                  block 
+                  pill 
+                  v-show="isEdit" 
+                  id="add-table-button"
+                  >Shto Tavoline</b-button
+                >
+                <b-popover
+                  target="add-table-button"
+                  triggers="click"
+                  ref="table-tooltip"
+                  placement="left"
+                >
+                  <div class="d-flex">
+                    <input
+                      class="form-control inputTableName mr-3"
+                      type="number"
+                      v-model="tableNumber"
+                      placeholder="Numri i tavolines"
+                    />
+                    <b-button
+                      pill
+                      size="sm"
+                      variant="primary"
+                     @click="addTable"
+                      >Shto</b-button
+                    >
+                  </div>
+                </b-popover>
+                <b-button
+                  block
+                  pill
+                  v-if="isEdit"
+                  variant="success"
+                  @click="doneEdit()"
+                  >Perfundo modifikimet</b-button
+                >
+              </div>
+            </b-col>
+          </b-row>
         </b-col>
       </b-row>
     </b-card>
-    <b-modal ref="profileModal" hide-footer title="Using Component Methods">
-      <div class="d-block text-center">
-        <b-form @submit.stop.prevent>
-          <b-form-input
-            id="feedback-user"
-            v-model="profileName"
-            placeholder="Emri i profilit"
-          ></b-form-input>
-          <b-form-invalid-feedback>
-            Emri i profilit duhet te jete 5-12 karaktere i gjate dhe te jete i
-            ndryshem nga profilet e tjera.
-          </b-form-invalid-feedback>
-          <b-form-valid-feedback>
-            Eshte ne rregull.
-          </b-form-valid-feedback>
-        </b-form>
-      </div>
-      <b-button class="mt-3" variant="outline-danger" block @click="hideModal"
-        >Close</b-button
-      >
-      <b-button
-        class="mt-2"
-        variant="outline-warning"
-        block
-        @click="addProfile()"
-      >
-        Save
-      </b-button>
-    </b-modal>
   </b-row>
 </template>
 
@@ -141,6 +159,7 @@ export default {
       lastDeleted: 0,
       isEdit: false,
       profileName: "",
+      tableNumber: "",
       profiles: [],
       tables: [],
       selectedProfile: 0,
@@ -148,15 +167,19 @@ export default {
     };
   },
   methods: {
+    getBorderClass(planeId) {
+      return this.selectedProfile === planeId
+        ? "border border-3 border-primary"
+        : "";
+    },
     changePosition(newPosition, id) {
-      let index = this.tables.indexOf(table => table.key === id)
+      let index = this.tables.indexOf((table) => table.key === id);
       let table = this.tables.find((x) => x.key === id);
       table.top = newPosition.top;
       table.left = newPosition.left;
       this.tables.slice(index, 1, table);
       localStorage.setItem("ordis:tables", JSON.stringify(this.tables));
     },
-
     tableNameChange(key, tableName) {
       let tables = JSON.parse(localStorage.getItem("ordis:tables")).filter(
         (x) => x.tableName === tableName
@@ -174,8 +197,11 @@ export default {
         profileId: this.selectedProfile,
         top: Math.floor(Math.random() * 100) + 1,
         left: Math.floor(Math.random() * 100) + 1,
+        number: this.tableNumber,
       };
       this.tables.push(table);
+      this.tableNumber = "";
+      this.$refs["table-tooltip"].$emit("close");
       localStorage.setItem("ordis:tables", JSON.stringify(this.tables));
     },
     editTables() {
@@ -191,14 +217,23 @@ export default {
       this.lastDeleted = tableKey;
       localStorage.setItem("ordis:tables", JSON.stringify(this.tables));
     },
-    addProfile() {
+    addPlane() {
       if (this.profileName === "") return false;
       this.profiles.push({
         id: Math.floor(Math.random() * 20) + 1,
         name: this.profileName,
       });
+      // Close Plane Tooltip
+      this.$refs["plane-tooltip"].$emit("close");
+      // Empty profile name value
+      this.profileName = "";
+      // Handle case when no plane exists
+      // Set newly created one as default
+      if (!this.selectedProfile) {
+        this.selectedProfile = this.profiles[0].id;
+      }
+      // Save in localstorage
       localStorage.setItem("ordis:planes", JSON.stringify(this.profiles));
-      this.selectedProfile = this.profiles.sort((a, b) => a.id - b.id)[0].id;
     },
     selectProfile(profileId) {
       this.selectedProfile = profileId;
@@ -212,8 +247,12 @@ export default {
   },
   computed: {
     profileTables() {
-      return this.tables.filter(table => table.profileId === this.selectedProfile) || [];
-    }
+      return (
+        this.tables.filter(
+          (table) => table.profileId === this.selectedProfile
+        ) || []
+      );
+    },
   },
 };
 </script>
@@ -229,6 +268,10 @@ export default {
   background: #6e6d6d;
   border-radius: 20px;
   cursor: pointer;
+}
+
+.border-3 {
+  border-width: 3px !important;
 }
 
 .inputTableName {
