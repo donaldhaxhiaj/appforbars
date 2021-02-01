@@ -32,7 +32,7 @@
                   v-if="isEdit"
                   variant="info"
                   @click="isMoving = !isMoving"
-                  title="Modifiko tavolinen"
+                  title="Leviz tavolinen"
                   class="ml-2 mb-2"
               ></b-icon>
               <b-icon
