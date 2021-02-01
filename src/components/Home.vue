@@ -10,11 +10,11 @@
             :key="index"
           >
             <VueDragResize
-              :class="isEdit ? 'shake' : ''"
+              :class="isMoving ? 'shake' : ''"
               :sticks="[]"
               :id="'tooltip-target-' + item.key"
               class="tableStyles"
-              :isActive="isEdit"
+              :isActive="isMoving"
               :w="90"
               :preventActiveBehavior="true"
               :parentLimitation="true"
@@ -26,16 +26,37 @@
               :parentW="1600"
               @dragstop="changePosition($event, item.key)"
             >
+            <div style="position: absolute;top: -5px;right: 0">
               <b-icon
-                icon="x-circle"
-                v-if="isEdit"
-                variant="danger"
-                @click="removeTable(item.key)"
-                title="Fshi tavolinen"
+                  icon="arrows-move"
+                  v-if="isEdit"
+                  variant="info"
+                  @click="isMoving = !isMoving"
+                  title="Modifiko tavolinen"
+                  class="ml-2 mb-2"
               ></b-icon>
+              <b-icon
+                  icon="pencil-square"
+                  v-if="isEdit"
+                  variant="info"
+                  @click="isMoving = false;isNumberEdit = !isNumberEdit"
+                  title="Modifiko tavolinen"
+                  class="ml-2 mb-2"
+              ></b-icon>
+              <b-icon
+                  icon="x-circle"
+                  v-if="isEdit"
+                  variant="danger"
+                  @click="removeTable(item.key)"
+                  title="Fshi tavolinen"
+              ></b-icon>
+            </div>
 
-              <div class="text-center">
-                <h1 class="text-white" style="margin-top: 1rem;">{{ item.number }}</h1>
+              <div v-if="isEdit" style="position: absolute;top: 15px;left: 21px;">
+                <input :disabled="!isNumberEdit" class="form-control" v-model="item.number" style="font-size: 33px;color: white; background: transparent;width: 70%;height: 57px;"/>
+              </div>
+              <div v-else class="text-center">
+                <h1  class="text-white" style="margin-top: 1rem;">{{ item.number }}</h1>
               </div>
             </VueDragResize>
           </div>
@@ -90,10 +111,10 @@
                   v-show="!isEdit"
                   >Modifiko Planimetrin</b-button
                 >
-                <b-button 
-                  block 
-                  pill 
-                  v-show="isEdit" 
+                <b-button
+                  block
+                  pill
+                  v-show="isEdit"
                   id="add-table-button"
                   >Shto Tavoline</b-button
                 >
@@ -164,6 +185,8 @@ export default {
       tables: [],
       selectedProfile: 0,
       filteredTables: [],
+      isMoving:false,
+      isNumberEdit:false
     };
   },
   methods: {
@@ -208,7 +231,8 @@ export default {
       this.isEdit = true;
     },
     doneEdit() {
-      this.isEdit = !this.isEdit;
+      this.isEdit = false;
+      this.isMoving = false;
     },
     removeTable(tableKey) {
       this.tables = this.tables.filter((x) => {
@@ -243,7 +267,7 @@ export default {
     },
     showModal() {
       this.$refs["profileModal"].show();
-    },
+    }
   },
   computed: {
     profileTables() {
