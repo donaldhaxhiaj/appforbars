@@ -67,11 +67,11 @@
                     >
                 </b-icon-pencil-square>
                 <input
-                    v-if="isProfileEdit"
+                    v-if="isProfileEdit && profile.id === selectedProfile"
                     v-model="profile.name"
                     class="form-control"
                 />
-                <b-button  v-if="isProfileEdit" class="mt-2" pill variant="primary">Ok</b-button>
+                <b-button v-if="isProfileEdit && profile.id === selectedProfile" class="mt-2" pill variant="primary" @click="changeProfileName()">Ok</b-button>
                 <h4 v-else >{{ profile.name }}</h4>
               </b-card>
             </b-col>
@@ -201,6 +201,12 @@ export default {
       return this.selectedProfile === planeId
           ? "border border-3 border-primary"
           : "";
+    },
+    changeProfileName() {
+      var profile = this.profiles.find(x => x.id === this.selectedProfile)
+      this.isProfileEdit = false
+
+      localStorage.setItem("ordis:planes", JSON.stringify(this.profiles));
     },
     changePosition(newPosition, id) {
       let index = this.tables.indexOf((table) => table.key === id);
