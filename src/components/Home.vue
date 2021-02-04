@@ -8,15 +8,16 @@
               class="tableMain"
               v-for="(item, index) in profileTables"
               :key="index"
-              @focusout="item.isNumberEdit = false"
-              @dblclick="item.isNumberEdit = true"
+              @focusout="isNumberEdit = false"
+              @dblclick="isNumberEdit = true"
+              @click="selectedTable = item.key"
           >
             <VueDragResize
-                :class="(isMoving && !item.isNumberEdit) ? 'shake' : ''"
+                :class="(isMoving && selectedTable === item.key && !isNumberEdit) ? 'shake' : ''"
                 :sticks="[]"
                 :id="'tooltip-target-' + item.key"
                 class="tableStyles"
-                :isActive="!item.isNumberEdit"
+                :isActive="selectedTable === item.key && !isNumberEdit"
                 :w="90"
                 :preventActiveBehavior="true"
                 :parentLimitation="true"
@@ -193,7 +194,8 @@ export default {
       filteredTables: [],
       isMoving: false,
       isNumberEdit: false,
-      isProfileEdit: false
+      isProfileEdit: false,
+      selectedTable: 0
     };
   },
   methods: {
